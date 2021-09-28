@@ -10,59 +10,35 @@ import java.util.Scanner;
 import java.util.Set;
 import java.util.TreeSet;
 
-public class DatabaseWorker {
+public class DatabaseWorker{
     private static final String jdbc = "jdbc:h2:/Users/u19571283/IdeaProjects/sber_project/src/main/resources/database";
-    private static Connection conn = null;
-    private static PreparedStatement simpleSelectStatement = null;
-    private static PreparedStatement insertStatement = null;
-    private static PreparedStatement updateStatement = null;
-    private static PreparedStatement sortedByDistrictAndNameStatement = null;
-    private static PreparedStatement groupByPopulation = null;
 
-    public static void init() {
+
+    static {
         try {
             Class.forName("org.h2.Driver");
-            conn = DriverManager.getConnection(jdbc,"sa","");
-            simpleSelectStatement = conn.prepareStatement("SELECT * FROM city");
-            insertStatement = conn.prepareStatement(
-                    "INSERT INTO city(id,name,region,district,population,foundation)" +
-                            " values(?,?,?,?,?,?)");
-            updateStatement = conn.prepareStatement("UPDATE city SET population = ? where id = ?");
-            sortedByDistrictAndNameStatement = conn.prepareStatement("SELECT * FROM city ORDER BY district,name");
-            groupByPopulation = conn.prepareStatement("select * from city where POPULATION=(select max(population) from city)");
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
-        } catch(SQLException e) {
-            e.printStackTrace();
         }
     }
 
-    public static void destroy() {
-        try {
-            if(simpleSelectStatement != null)
-                simpleSelectStatement.close();
-            if(insertStatement != null)
-                insertStatement.close();
-            if(updateStatement != null)
-                updateStatement.close();
-            if(sortedByDistrictAndNameStatement != null)
-                sortedByDistrictAndNameStatement.close();
-            if(groupByPopulation != null)
-                groupByPopulation.close();
-            if(conn != null)
-                conn.close();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
 
-    public static void updateValues(City c) throws SQLException{
+
+    public void updateValues(City c) throws SQLException{
+        Connection conn = DriverManager.getConnection(jdbc,"sa","");
+        PreparedStatement updateStatement = conn.prepareStatement("UPDATE city SET population = ? where id = ?");
         updateStatement.setLong(1,c.getPopulation());
         updateStatement.setInt(2,c.getHash());
         updateStatement.executeUpdate();
+        updateStatement.close();
+        conn.close();
     }
 
-    public static void insertValues(City c) throws SQLException {
+    public void insertValues(City c) throws SQLException {
+        Connection conn = DriverManager.getConnection(jdbc,"sa","");
+        PreparedStatement insertStatement = conn.prepareStatement(
+                "INSERT INTO city(id,name,region,district,population,foundation)" +
+                        " values(?,?,?,?,?,?)");
         insertStatement.setInt(1,c.getHash());
         insertStatement.setString(2,c.getName());
         insertStatement.setString(3,c.getRegion());
@@ -70,35 +46,52 @@ public class DatabaseWorker {
         insertStatement.setLong(5,c.getPopulation());
         insertStatement.setString(6,c.getFoundation());
         insertStatement.executeUpdate();
+        insertStatement.close();
+        conn.close();
     }
 
-    public static Set<City> getValues() throws SQLException {
+    public Set<City> getValues() throws SQLException {
+        Connection conn = DriverManager.getConnection(jdbc,"sa","");
+        PreparedStatement simpleSelectStatement = conn.prepareStatement("SELECT * FROM city");
         ResultSet results = simpleSelectStatement.executeQuery();
-        return City.transformFromResultSet(results);
+        Set<City> cities = City.transformFromResultSet(results);
+        simpleSelectStatement.close();
+        conn.close();
+        return cities;
     }
 
-    public static void printValues() throws SQLException {
+    public void printValues() throws SQLException {
         System.out.println(getValues());
     }
 
-    public static void getSortedValues(boolean ascending) throws SQLException{
+    public void getSortedValues(boolean ascending) throws SQLException{
         TreeSet<City> cities = new TreeSet<City>(getValues());
         if(!ascending) {
             cities = (TreeSet)cities.descendingSet();
         }
         System.out.println(cities);
     }
-    public static void getGroupByPopulation() throws SQLException {
+    public void getGroupByPopulation() throws SQLException {
+        Connection conn = DriverManager.getConnection(jdbc,"sa","");
+        PreparedStatement groupByPopulation = conn.prepareStatement("select * from city where POPULATION=(select max(population) from city)");
         Set<City> cities = City.transformFromResultSet(groupByPopulation.executeQuery());
         System.out.println(cities);
+        groupByPopulation.close();
+        conn.close();
     }
 
-    public static void sortedByDistrictAndName() throws SQLException {
+    public void sortedByDistrictAndName() throws SQLException {
+        Connection conn = DriverManager.getConnection(jdbc,"sa","");
+        PreparedStatement sortedByDistrictAndNameStatement = conn.prepareStatement("SELECT * FROM city ORDER BY district,name");
         Set<City> cities = City.transformFromResultSet(sortedByDistrictAndNameStatement.executeQuery());
         System.out.println(cities);
+        sortedByDistrictAndNameStatement.close();
+        conn.close();
     }
 
-    public static void getGroupByPopulation2() throws SQLException {
+    public void getGroupByPopulation2() throws SQLException {
+        Connection conn = DriverManager.getConnection(jdbc,"sa","");
+        PreparedStatement groupByPopulation = conn.prepareStatement("select * from city where POPULATION=(select max(population) from city)");
         Set<City> cities = City.transformFromResultSet(groupByPopulation.executeQuery());
         City[] ar_city = new City[cities.size()];
         int i = 0;
@@ -114,10 +107,13 @@ public class DatabaseWorker {
             ++i;
         }
         System.out.println("["+max_i+"]="+max);
+        groupByPopulation.close();
+        conn.close();
     }
 
-    public static void countOfCities() throws SQLException{
-        PreparedStatement stmnt = conn.prepareStatement("select upper(region), count(name) from city group by upper(region)");
+    public void countOfCities() throws SQLException{
+        PreparedStatement stmnt = DriverManager.getConnection(jdbc,"sa","")
+                .prepareStatement("select upper(region), count(name) from city group by upper(region)");
         ResultSet rs = stmnt.executeQuery();
         while(rs.next()) {
             StringBuilder strbld = new StringBuilder();
@@ -129,7 +125,7 @@ public class DatabaseWorker {
         stmnt.close();
     }
 
-    public static void scanningFile(String[] args) {
+    public void scanningFile(String[] args) {
         Scanner sc = null;
 
         try {
@@ -165,4 +161,5 @@ public class DatabaseWorker {
         }
         sc.close();
     }
+
 }
