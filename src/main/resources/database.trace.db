@@ -1090,3 +1090,9 @@ CREATE TABLE IF NOT EXISTS  city
 	at org.h2.jdbc.JdbcPreparedStatement.executeUpdate(JdbcPreparedStatement.java:154)
 	at sharifulin.db.DatabaseWorker.init(DatabaseWorker.java:43)
 	at sharifulin.Main.main(Main.java:46)
+2021-09-28 17:32:49 jdbc[11]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: Объект уже закрыт
+The object is already closed [90007-199]
+2021-09-28 17:35:03 jdbc[11]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: Объект уже закрыт
+The object is already closed [90007-199]
