@@ -10,6 +10,7 @@ import java.util.Set;
 public class Main {
     public static void main(String[] args) throws InterruptedException, SQLException {
         String file = null;
+        DatabaseWorker db = new DatabaseWorker();
         if(args.length !=0)
         for(int i=0;i<args.length;++i) {
            switch(args[i]) {
@@ -43,41 +44,40 @@ public class Main {
                 "\n\t7)Поиск количества городов в разрезе регионов");
         int number = scanner.nextInt();
         scanner.close();
-        DatabaseWorker.init();
-        DatabaseWorker.scanningFile(new String[]{file});
+        db.scanningFile(new String[]{file});
         switch(number) {
             case(1): {
-                DatabaseWorker.printValues();
+                db.printValues();
                 break;
             }
             case(2): {
-                DatabaseWorker.getSortedValues(true);
+                db.getSortedValues(true);
                 break;
             }
             case(3): {
-                DatabaseWorker.getSortedValues(false);
+                db.getSortedValues(false);
                 break;
             }
             case(4): {
-                DatabaseWorker.sortedByDistrictAndName();
+                db.sortedByDistrictAndName();
                 break;
             }
             case(5): {
-                DatabaseWorker.getGroupByPopulation();
+                db.getGroupByPopulation();
                 break;
             }
             case(6): {
-                DatabaseWorker.getGroupByPopulation2();
+                db.getGroupByPopulation2();
                 break;
             }
             case(7): {
-                DatabaseWorker.countOfCities();
+                db.countOfCities();
                 break;
             }
             default: {
                 System.err.println("Incorrect input number ...\nSwitched number to 1");
             }
         }
-        DatabaseWorker.destroy();
+
     }
 }
