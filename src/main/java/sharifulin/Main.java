@@ -8,7 +8,7 @@ import java.util.Scanner;
 import java.util.Set;
 
 public class Main {
-    public static void main(String[] args) throws InterruptedException, SQLException {
+    public static void main(String[] args){
         String file = null;
         DatabaseWorker db = new DatabaseWorker();
         if(args.length !=0)
@@ -23,7 +23,11 @@ public class Main {
                case("-h"): {
                    System.out.println("Для запуска приложения укажите входной файл через ключ -f:" +
                            "\tПример: java Main -f /etc/fstab");
-                   Thread.sleep(5000);
+                   try {
+                       Thread.sleep(5000);
+                   } catch (InterruptedException e) {
+                       e.printStackTrace();
+                   }
                    System.exit(1);
                    break;
                } default:
@@ -44,7 +48,7 @@ public class Main {
                 "\n\t7)Поиск количества городов в разрезе регионов");
         int number = scanner.nextInt();
         scanner.close();
-        db.scanningFile(new String[]{file});
+        db.scanningFile(file);
         switch(number) {
             case(1): {
                 db.printValues();
